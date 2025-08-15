@@ -13,13 +13,13 @@ df['VMT'] = df['VMT'].clip(lower=0)
 vmt_cap = df['VMT'].quantile(0.99)
 df['VMT'] = df['VMT'].clip(upper=vmt_cap)
 
-df['VEH_PER_ADULT'] = df['HHVEHCNT'] / df['NUMADLT'].replace(0,1)
-df['INCOME_PER_VEHICLE'] = df['HHFAMINC'] / df['HHVEHCNT'].replace(0,1)
-
 categorical = ["URBAN", "HOMETYPE", "HOMEOWN"]
 df = pd.get_dummies(df, columns=categorical, drop_first=True)
 
-features = ["NUMADLT", "HHVEHCNT", "HHFAMINC", "VEH_PER_ADULT", "INCOME_PER_VEHICLE", "DRVRCNT", "HHSIZE"]
+features = [
+    "NUMADLT", "HHVEHCNT", "HHFAMINC", "VEH_PER_ADULT", 
+    "INCOME_PER_VEHICLE", "DRVRCNT", "HHSIZE"
+]
 features += [c for c in df.columns if any(cat in c for cat in categorical)]
 
 X = df[features]
