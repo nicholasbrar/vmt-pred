@@ -13,6 +13,10 @@ df['VMT'] = df['VMT'].clip(lower=0)
 vmt_cap = df['VMT'].quantile(0.99)
 df['VMT'] = df['VMT'].clip(upper=vmt_cap)
 
+df['HHVEHCNT'] = df['HHVEHCNT'].clip(upper=df['HHVEHCNT'].quantile(0.99))
+df['HHSIZE'] = df['HHSIZE'].clip(upper=df['HHSIZE'].quantile(0.99))
+df['NUMADLT'] = df['NUMADLT'].clip(upper=df['NUMADLT'].quantile(0.99))
+
 categorical = ["URBAN", "HOMETYPE", "HOMEOWN"]
 df = pd.get_dummies(df, columns=categorical, drop_first=True)
 
