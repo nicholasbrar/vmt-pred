@@ -18,15 +18,22 @@ df['HHSIZE'] = df['HHSIZE'].clip(upper=df['HHSIZE'].quantile(0.99))
 df['NUMADLT'] = df['NUMADLT'].clip(upper=df['NUMADLT'].quantile(0.99))
 
 categorical = ["URBAN", "HOMETYPE", "HOMEOWN"]
-df = pd.get_dummies(df, columns=categorical, drop_first=True)
+df = pd.get_dummies(df, columns=categorical, drop_first=False)  
+
+strong_dummies = ["URBAN_4", "URBAN_2", "HOMETYPE_3", "HOMETYPE_2", "HOMEOWN_3"]
+dummies_to_drop = [c for c in df.columns if c in df.columns and c not in strong_dummies and any(cat in c for cat in categorical)]
+df = df.drop(columns=dummies_to_drop)
 
 features = [
     "NUMADLT", "HHVEHCNT", "HHFAMINC", "VEH_PER_ADULT", 
-    "INCOME_PER_VEHICLE", "DRVRCNT", "HHSIZE"
+    "INCOME_PER_VEHICLE", "DRVRCNT", "HHSIZE", "VEHYEAR",
+    "VEHAGE", "VEHCOMMERCIAL", "DRIVER", "WORKER", "R_AGE"
 ]
 features += [c for c in df.columns if any(cat in c for cat in categorical)]
 
 X = df[features]
+X['INCOME_per_VEHICLE_times_VEH_PER_ADULT'] = X['INCOME_PER_VEHICLE'] * X['VEH_PER_ADULT']
+
 y = df['VMT']
 weights = df["WTHHFIN"]
 
