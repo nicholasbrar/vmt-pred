@@ -24,15 +24,21 @@ strong_dummies = ["URBAN_4", "URBAN_2", "HOMETYPE_3", "HOMETYPE_2", "HOMEOWN_3"]
 dummies_to_drop = [c for c in df.columns if c in df.columns and c not in strong_dummies and any(cat in c for cat in categorical)]
 df = df.drop(columns=dummies_to_drop)
 
+
 features = [
     "NUMADLT", "HHVEHCNT", "HHFAMINC", "VEH_PER_ADULT", 
     "INCOME_PER_VEHICLE", "DRVRCNT", "HHSIZE", "VEHYEAR",
-    "VEHAGE", "VEHCOMMERCIAL", "DRIVER", "WORKER", "R_AGE"
+    "VEHAGE", "VEHCOMMERCIAL", "WORKER", "R_AGE",
+    "GCDWORK", "PTUSED", "DELIV_FOOD"
 ]
+
 features += [c for c in df.columns if any(cat in c for cat in categorical)]
 
 X = df[features]
-X['INCOME_per_VEHICLE_times_VEH_PER_ADULT'] = X['INCOME_PER_VEHICLE'] * X['VEH_PER_ADULT']
+epsilon = 1e-6
+X.loc[:, 'INCOME_PER_ADULT_PER_VEHICLE'] = X['HHFAMINC'] / ((X['NUMADLT'] + epsilon) * (X['HHVEHCNT'] + epsilon))
+X.loc[:, 'INCOME_per_VEHICLE_times_VEH_PER_ADULT'] = X['INCOME_PER_VEHICLE'] * X['VEH_PER_ADULT']
+
 
 y = df['VMT']
 weights = df["WTHHFIN"]
@@ -54,7 +60,13 @@ print(f"Weighted RMSE: {weighted_rmse:.2f}")
 print(f"Weighted MAE: {weighted_mae:.2f}")
 print(f"Weighted R²: {r2:.2f}\n")
 
-rf = RandomForestRegressor(n_estimators=100, random_state=42)
+rf = RandomForestRegressor(
+    n_estimators=200,        # more trees
+    max_depth=12,            # limit depth slightly
+    min_samples_leaf=5,      # reduce overfitting to small leaves
+    random_state=42,
+    n_jobs=-1
+)
 rf.fit(X_train, y_train, sample_weight=w_train)
 
 importances = pd.DataFrame({
@@ -64,3 +76,7 @@ importances = pd.DataFrame({
 
 print("=== Random Forest Feature Importances ===")
 print(importances.head(15))
+
+
+
+
