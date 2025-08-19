@@ -38,7 +38,7 @@ X = df[features]
 epsilon = 1e-6
 X.loc[:, 'INCOME_PER_ADULT_PER_VEHICLE'] = X['HHFAMINC'] / ((X['NUMADLT'] + epsilon) * (X['HHVEHCNT'] + epsilon))
 X.loc[:, 'INCOME_per_VEHICLE_times_VEH_PER_ADULT'] = X['INCOME_PER_VEHICLE'] * X['VEH_PER_ADULT']
-
+X.loc[:, 'PER_VEHICLE_time_HHVEHCNT'] = X['INCOME_PER_ADULT_PER_VEHICLE'] * X['HHVEHCNT']
 
 df['LOG_VMT'] = np.log1p(df['VMT'])
 
@@ -63,9 +63,9 @@ print(f"Weighted MAE: {weighted_mae:.2f}")
 print(f"Weighted R²: {r2:.2f}\n")
 
 rf = RandomForestRegressor(
-    n_estimators=200,        # more trees
-    max_depth=12,            # limit depth slightly
-    min_samples_leaf=5,      # reduce overfitting to small leaves
+    n_estimators=500,        
+    max_depth=12,            
+    min_samples_leaf=4,      
     random_state=42,
     n_jobs=-1
 )

@@ -7,7 +7,7 @@ PER_RAW = "data/nhts_raw/pers.csv"
 PROCESSED_PATH = "data/processed/hh_processed.csv"
 
 def preprocess():
-    # --- Household data ---
+    # Household data
     hh = pd.read_csv(HH_RAW)
     hh = hh.dropna(subset=["HOUSEID"])
     
@@ -25,7 +25,7 @@ def preprocess():
     hh = hh[features]
     hh["WTHHFIN"] = hh["WTHHFIN"].fillna(hh["WTHHFIN"].median())
 
-    # --- Vehicle data ---
+    # Vehicle data
     veh = pd.read_csv(VEH_RAW)
     veh["ANNMILES"] = pd.to_numeric(veh["ANNMILES"], errors='coerce').fillna(0)
     veh["VEHYEAR"] = pd.to_numeric(veh["VEHYEAR"], errors='coerce').fillna(veh["VEHYEAR"].median())
@@ -45,25 +45,22 @@ def preprocess():
     hh["VEHAGE"] = hh["VEHAGE"].fillna(hh["VEHAGE"].median())
     hh["VEHCOMMERCIAL"] = hh["VEHCOMMERCIAL"].fillna(0)
 
-    # --- Person data ---
+    # Person data
     per = pd.read_csv(PER_RAW)
 
-    # Base features already used
     base_person_features = ["HOUSEID", "DRIVER", "WORKER", "R_AGE"]
 
-    # Three new features to add
     extra_features = ["GCDWORK", "PTUSED", "DELIV_FOOD"]
 
     per = per[base_person_features + extra_features]
 
-    # Aggregate to household level
     per_agg = per.groupby("HOUSEID").agg({
         "DRIVER": "sum",
         "WORKER": "sum",
         "R_AGE": "mean",
-        "GCDWORK": "sum",        # avg commute distance
-        "PTUSED": "max",          # any public transit use
-        "DELIV_FOOD": "max"       # any food delivery
+        "GCDWORK": "sum",        
+        "PTUSED": "max",          
+        "DELIV_FOOD": "max"       
     }).reset_index()
 
     hh = hh.merge(per_agg, on="HOUSEID", how="left")
@@ -74,11 +71,9 @@ def preprocess():
     hh["PTUSED"] = hh["PTUSED"].fillna(0)
     hh["DELIV_FOOD"] = hh["DELIV_FOOD"].fillna(0)
 
-    # --- Derived features ---
     hh["VEH_PER_ADULT"] = hh["HHVEHCNT"] / hh["NUMADLT"].replace(0, 1)
     hh["INCOME_PER_VEHICLE"] = hh["HHFAMINC"] / hh["HHVEHCNT"].replace(0, 1)
 
-    # Save processed file
     os.makedirs(os.path.dirname(PROCESSED_PATH), exist_ok=True)
     hh.to_csv(PROCESSED_PATH, index=False)
     print(f"Processed data saved to {PROCESSED_PATH}")
