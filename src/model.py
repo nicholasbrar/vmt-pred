@@ -40,7 +40,9 @@ X.loc[:, 'INCOME_PER_ADULT_PER_VEHICLE'] = X['HHFAMINC'] / ((X['NUMADLT'] + epsi
 X.loc[:, 'INCOME_per_VEHICLE_times_VEH_PER_ADULT'] = X['INCOME_PER_VEHICLE'] * X['VEH_PER_ADULT']
 
 
-y = df['VMT']
+df['LOG_VMT'] = np.log1p(df['VMT'])
+
+y = df['LOG_VMT']
 weights = df["WTHHFIN"]
 
 X_train, X_test, y_train, y_test, w_train, w_test = train_test_split(
@@ -76,6 +78,7 @@ importances = pd.DataFrame({
 
 print("=== Random Forest Feature Importances ===")
 print(importances.head(15))
+
 
 
 

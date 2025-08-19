@@ -61,7 +61,7 @@ def preprocess():
         "DRIVER": "sum",
         "WORKER": "sum",
         "R_AGE": "mean",
-        "GCDWORK": "mean",        # avg commute distance
+        "GCDWORK": "sum",        # avg commute distance
         "PTUSED": "max",          # any public transit use
         "DELIV_FOOD": "max"       # any food delivery
     }).reset_index()
